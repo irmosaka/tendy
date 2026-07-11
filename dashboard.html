@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>داشبورد تندی</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
     
@@ -33,6 +34,14 @@
     .kpi h3 { margin: 0 0 8px 0; font-size: 1rem; color: #7f8c8d; }
     .kpi h2 { margin: 0; font-size: 1.6rem; color: #27ae60; }
 
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 20px 0;
+    }
+
     table { 
       width: 100%; 
       border-collapse: collapse; 
@@ -44,20 +53,13 @@
     }
     th, td { 
       border: 1px solid #ecf0f1; 
-      padding: 14px; 
+      padding: 12px; 
       text-align: center; 
     }
-    th { 
-      background: #3498db; 
-      color: white; 
-    }
+    th { background: #3498db; color: white; }
     tr:nth-child(even) { background: #f8f9fa; }
 
-    .filter { 
-      text-align: center; 
-      margin: 20px 0; 
-      font-size: 1.1rem;
-    }
+    .filter { text-align: center; margin: 20px 0; }
   </style>
 </head>
 <body>
@@ -68,6 +70,11 @@
     <div class="kpi"><h3>کل فروش</h3><h2 id="totalRevenue">۰ تومان</h2></div>
     <div class="kpi"><h3>تعداد رکورد</h3><h2 id="totalRows">۰</h2></div>
     <div class="kpi"><h3>بهترین لاین</h3><h2 id="bestLine">SDA</h2></div>
+  </div>
+
+  <div class="chart-container">
+    <h2>نمودار فروش ماهانه</h2>
+    <canvas id="salesChart" height="100"></canvas>
   </div>
 
   <div class="filter">
@@ -81,18 +88,15 @@
   <table id="dataTable">
     <thead>
       <tr>
-        <th>تاریخ</th>
-        <th>لاین</th>
-        <th>محصول</th>
-        <th>فروش (تومان)</th>
-        <th>تعداد</th>
-        <th>مشاور</th>
+        <th>تاریخ</th><th>لاین</th><th>محصول</th><th>فروش (تومان)</th><th>تعداد</th><th>مشاور</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
+    let chart;
+
     async function loadData() {
       const response = await fetch('data/sample_data.csv');
       const text = await response.text();
@@ -101,14 +105,22 @@
       
       let totalRev = 0;
       let lines = new Set();
+      let monthlyData = {};
 
       rows.slice(1).forEach(row => {
         if (!row.trim()) return;
         const cols = row.split(',');
+        const date = cols[0];
+        const line = cols[1];
         const revenue = parseInt(cols[3]) || 0;
         
         totalRev += revenue;
-        lines.add(cols[1]);
+        lines.add(line);
+
+        // جمع ماهانه
+        const month = date.substring(0, 7); // YYYY-MM
+        if (!monthlyData[month]) monthlyData[month] = 0;
+        monthlyData[month] += revenue;
 
         const tr = document.createElement('tr');
         cols.forEach(cell => {
@@ -119,6 +131,7 @@
         tbody.appendChild(tr);
       });
 
+      // KPI
       document.getElementById('totalRevenue').textContent = totalRev.toLocaleString('fa-IR') + ' تومان';
       document.getElementById('totalRows').textContent = rows.length - 1;
 
@@ -129,6 +142,37 @@
         opt.value = line;
         opt.textContent = line;
         select.appendChild(opt);
+      });
+
+      // نمودار
+      createChart(monthlyData);
+    }
+
+    function createChart(data) {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      const labels = Object.keys(data).sort();
+      const values = labels.map(m => data[m]);
+
+      if (chart) chart.destroy();
+      
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'فروش ماهانه (تومان)',
+            data: values,
+            backgroundColor: '#3498db',
+            borderColor: '#2980b9',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } }
+          }
+        }
       });
     }
 

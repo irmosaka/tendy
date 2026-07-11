@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>داشبورد تندی</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
     body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; color: #2c3e50; }
@@ -33,12 +33,12 @@
 
   <div class="chart-container">
     <h2>نمودار فروش ماهانه</h2>
-    <canvas id="salesChart" height="120"></canvas>
+    <canvas id="salesChart" height="130"></canvas>
   </div>
 
   <div class="chart-container">
     <h2>سهم هر لاین</h2>
-    <canvas id="pieChart" height="120"></canvas>
+    <canvas id="pieChart" height="130"></canvas>
   </div>
 
   <div class="filter">
@@ -55,7 +55,7 @@
   </table>
 
   <script>
-    const USERNAME = "irmosaka";
+    const USERNAME = "YOUR_GITHUB_USERNAME"; // عوض کن
 
     function toPersianDate(isoDate) {
       if (!isoDate) return "نامعتبر";
@@ -79,14 +79,12 @@
       rows.slice(1).forEach(row => {
         if (!row.trim()) return;
         const cols = row.split(',');
-        if (cols.length < 4) return;
+        if (cols.length < 4 || cols[1] === "INVALID") return;
         
         const date = cols[0];
         const line = cols[1];
         const revenue = parseInt(cols[3]) || 0;
         
-        if (line === "INVALID") return; // رد کردن ردیف‌های تست
-
         totalRev += revenue;
         lineRevenue[line] = (lineRevenue[line] || 0) + revenue;
 
@@ -115,6 +113,7 @@
         select.appendChild(opt);
       });
 
+      // چارت‌ها
       createMonthlyChart(monthlyData);
       createPieChart(lineRevenue);
     }
@@ -126,8 +125,14 @@
 
       new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }] },
-        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } } } }
+        data: {
+          labels: labels,
+          datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } } }
+        }
       });
     }
 
@@ -138,7 +143,10 @@
 
       new Chart(ctx, {
         type: 'pie',
-        data: { labels, datasets: [{ data: values, backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'] }] },
+        data: {
+          labels: labels,
+          datasets: [{ data: values, backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f1c40f'] }]
+        },
         options: { responsive: true }
       });
     }
@@ -152,7 +160,7 @@
       });
     }
 
-    loadData();
+    loadData().catch(e => alert("خطا: " + e.message));
   </script>
 </body>
 </html>

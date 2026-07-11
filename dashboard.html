@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>داشبورد تندی</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
     body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; color: #2c3e50; }
@@ -12,12 +13,12 @@
     .kpi { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: center; }
     .kpi h3 { margin: 0 0 8px 0; font-size: 1rem; color: #7f8c8d; }
     .kpi h2 { margin: 0; font-size: 1.6rem; color: #27ae60; }
+    .chart-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px 0; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     th, td { border: 1px solid #ecf0f1; padding: 12px; text-align: center; }
     th { background: #3498db; color: white; }
     tr:nth-child(even) { background: #f8f9fa; }
     .filter { text-align: center; margin: 20px 0; }
-    .note { text-align: center; color: #e74c3c; margin: 15px 0; }
   </style>
 </head>
 <body>
@@ -30,7 +31,15 @@
     <div class="kpi"><h3>بهترین لاین</h3><h2 id="bestLine">SDA</h2></div>
   </div>
 
-  <p class="note">نمودار فروش ماهانه (در نسخه بعدی اضافه خواهد شد)</p>
+  <div class="chart-container">
+    <h2>نمودار فروش ماهانه</h2>
+    <canvas id="salesChart" height="120"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h2>سهم هر لاین</h2>
+    <canvas id="pieChart" height="120"></canvas>
+  </div>
 
   <div class="filter">
     <label>فیلتر لاین: </label>
@@ -46,11 +55,14 @@
   </table>
 
   <script>
-    const USERNAME = "irmosaka";   
+    const USERNAME = "YOUR_GITHUB_USERNAME";
+
     function toPersianDate(isoDate) {
+      if (!isoDate) return "نامعتبر";
       const [year, month, day] = isoDate.split('-').map(Number);
       const persianMonths = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-      return `${day} ${persianMonths[month-1]} ${year - 621}`;   // تبدیل تقریبی به شمسی
+      const persianYear = year - 621;
+      return `${day} ${persianMonths[month-1]} ${persianYear}`;
     }
 
     async function loadData() {
@@ -61,14 +73,25 @@
       const tbody = document.querySelector('#dataTable tbody');
       
       let totalRev = 0;
-      let lines = new Set();
+      let lineRevenue = {};
+      let monthlyData = {};
 
       rows.slice(1).forEach(row => {
         if (!row.trim()) return;
         const cols = row.split(',');
+        if (cols.length < 4) return;
+        
+        const date = cols[0];
+        const line = cols[1];
         const revenue = parseInt(cols[3]) || 0;
+        
+        if (line === "INVALID") return; // رد کردن ردیف‌های تست
+
         totalRev += revenue;
-        lines.add(cols[1]);
+        lineRevenue[line] = (lineRevenue[line] || 0) + revenue;
+
+        const month = date.substring(0,7);
+        monthlyData[month] = (monthlyData[month] || 0) + revenue;
 
         const tr = document.createElement('tr');
         cols.forEach((cell, i) => {
@@ -85,11 +108,38 @@
       document.getElementById('totalRows').textContent = rows.length - 1;
 
       const select = document.getElementById('lineFilter');
-      lines.forEach(line => {
+      Object.keys(lineRevenue).forEach(line => {
         const opt = document.createElement('option');
         opt.value = line;
         opt.textContent = line;
         select.appendChild(opt);
+      });
+
+      createMonthlyChart(monthlyData);
+      createPieChart(lineRevenue);
+    }
+
+    function createMonthlyChart(data) {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      const labels = Object.keys(data).sort();
+      const values = labels.map(m => data[m]);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }] },
+        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } } } }
+      });
+    }
+
+    function createPieChart(data) {
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      const labels = Object.keys(data);
+      const values = Object.values(data);
+
+      new Chart(ctx, {
+        type: 'pie',
+        data: { labels, datasets: [{ data: values, backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'] }] },
+        options: { responsive: true }
       });
     }
 

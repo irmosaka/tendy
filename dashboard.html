@@ -6,27 +6,92 @@
   <style>
     body { font-family: Tahoma; margin: 20px; background: #f8f9fa; }
     h1 { text-align: center; color: #2c3e50; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    .kpi-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+    .kpi { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
     th { background: #3498db; color: white; }
-    .kpi { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; margin: 10px; }
+    tr:nth-child(even) { background: #f8f9fa; }
+    .filter { margin: 15px 0; text-align: center; }
   </style>
 </head>
 <body>
-  <h1>داشبورد بیزینسی تندی</h1>
+  <h1>📊 داشبورد بیزینسی تندی</h1>
   
-  <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-    <div class="kpi"><h3>کل فروش</h3><h2>۳۲۰ میلیون تومان</h2></div>
-    <div class="kpi"><h3>تعداد سفارش</h3><h2>۵۳۸</h2></div>
-    <div class="kpi"><h3>بهترین لاین</h3><h2>SDA</h2></div>
+  <div class="kpi-container">
+    <div class="kpi"><h3>کل فروش</h3><h2 id="totalRevenue">۰ تومان</h2></div>
+    <div class="kpi"><h3>تعداد رکورد</h3><h2 id="totalRows">۰</h2></div>
+    <div class="kpi"><h3>بهترین لاین</h3><h2 id="bestLine">—</h2></div>
   </div>
 
-  <h2>داده‌های فروش</h2>
-  <table id="dataTable"></table>
+  <div class="filter">
+    <label>فیلتر لاین: </label>
+    <select id="lineFilter" onchange="filterTable()">
+      <option value="">همه</option>
+    </select>
+  </div>
+
+  <h2>جدول فروش</h2>
+  <table id="dataTable">
+    <thead><tr><th>تاریخ</th><th>لاین</th><th>محصول</th><th>فروش (تومان)</th><th>تعداد</th><th>مشاور</th></tr></thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    // بعداً کد نمایش CSV رو اینجا می‌ذاریم
-    console.log("داشبورد تندی آماده است");
+    async function loadData() {
+      const response = await fetch('data/sample_data.csv');
+      const text = await response.text();
+      const rows = text.trim().split('\n');
+      const headers = rows[0].split(',');
+      
+      const tbody = document.querySelector('#dataTable tbody');
+      let totalRev = 0;
+      let lines = new Set();
+
+      rows.slice(1).forEach(row => {
+        if (!row.trim()) return;
+        const cols = row.split(',');
+        const revenue = parseInt(cols[3]) || 0;
+        
+        totalRev += revenue;
+        lines.add(cols[1]);
+
+        const tr = document.createElement('tr');
+        cols.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      // نمایش KPIها
+      document.getElementById('totalRevenue').textContent = totalRev.toLocaleString('fa-IR') + ' تومان';
+      document.getElementById('totalRows').textContent = rows.length - 1;
+      document.getElementById('bestLine').textContent = 'SDA'; // بعداً هوشمند می‌کنیم
+
+      // پر کردن فیلتر
+      const select = document.getElementById('lineFilter');
+      lines.forEach(line => {
+        const opt = document.createElement('option');
+        opt.value = line;
+        opt.textContent = line;
+        select.appendChild(opt);
+      });
+    }
+
+    function filterTable() {
+      const filter = document.getElementById('lineFilter').value;
+      const rows = document.querySelectorAll('#dataTable tbody tr');
+      
+      rows.forEach(row => {
+        const lineCell = row.cells[1].textContent;
+        row.style.display = (filter === '' || lineCell === filter) ? '' : 'none';
+      });
+    }
+
+    // بارگذاری دیتا
+    loadData();
   </script>
 </body>
 </html>

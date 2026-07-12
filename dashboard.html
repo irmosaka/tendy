@@ -22,15 +22,16 @@
       justify-content: center; 
       margin: 20px 0; 
     }
-    .chart-card { 
+        .chart-card { 
       background: white; 
-      padding: 20px; 
+      padding: 15px; 
       border-radius: 12px; 
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
       flex: 1; 
       min-width: 45%; 
       max-width: 48%; 
     }
+    canvas { max-height: 280px !important; }   
 
     table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     th, td { border: 1px solid #ecf0f1; padding: 12px; text-align: center; }
@@ -132,8 +133,22 @@
         select.appendChild(opt);
       });
 
-      createMonthlyChart(monthlyData);
-      createPieChart(lineRevenue);
+      createMonthlyChart(monthlyData)
+        options: {
+  responsive: true,
+  plugins: {
+    legend: { labels: { font: { family: 'Vazirmatn' } } }
+  },
+  scales: { ... }
+};
+      createPieChart(lineRevenue)
+        options: {
+  responsive: true,
+  plugins: {
+    legend: { labels: { font: { family: 'Vazirmatn' } } }
+  },
+  scales: { ... }
+};
     }
 
     function createMonthlyChart(data) {

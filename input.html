@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>ورود دیتا - تندی</title>
+  <style>
+    body { font-family: 'Vazirmatn', Tahoma; margin: 20px; background: #f4f6f9; }
+    .form { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem; }
+    button { background: #3498db; color: white; cursor: pointer; font-weight: bold; }
+    button:hover { background: #2980b9; }
+    table { margin-top: 20px; width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="form">
+    <h1>📝 ورود اطلاعات فروش تندی</h1>
+    
+    <input type="date" id="date" placeholder="تاریخ">
+    <select id="line">
+      <option value="SDA">SDA</option>
+      <option value="Digital">Digital</option>
+      <option value="Cosmetics">Cosmetics</option>
+    </select>
+    <input type="text" id="product" placeholder="نام محصول">
+    <input type="number" id="revenue" placeholder="مبلغ فروش (تومان)">
+    <input type="number" id="units" placeholder="تعداد">
+    <input type="text" id="consultant" placeholder="نام مشاور">
+
+    <button onclick="addRow()">➕ اضافه کردن به جدول</button>
+    <button onclick="downloadCSV()" style="background:#27ae60;">⬇️ دانلود فایل CSV</button>
+
+    <h2>داده‌های وارد شده</h2>
+    <table id="dataTable"><thead><tr><th>تاریخ</th><th>لاین</th><th>محصول</th><th>فروش</th><th>تعداد</th><th>مشاور</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <script>
+    let data = [];
+
+    function addRow() {
+      const row = {
+        date: document.getElementById('date').value,
+        line: document.getElementById('line').value,
+        product: document.getElementById('product').value,
+        revenue: document.getElementById('revenue').value,
+        units: document.getElementById('units').value,
+        consultant: document.getElementById('consultant').value
+      };
+      data.push(row);
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#dataTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.date}</td><td>${r.line}</td><td>${r.product}</td><td>${parseInt(r.revenue).toLocaleString('fa-IR')}</td><td>${r.units}</td><td>${r.consultant}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function downloadCSV() {
+      let csv = "date,line,product,revenue,units,consultant\n";
+      data.forEach(r => {
+        csv += `${r.date},${r.line},${r.product},${r.revenue},${r.units},${r.consultant}\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `sales_data_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+    }
+  </script>
+</body>
+</html>

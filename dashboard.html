@@ -9,11 +9,29 @@
     body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; color: #2c3e50; }
     h1 { text-align: center; color: #2c3e50; }
     .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+    
     .kpi-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
     .kpi { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 220px; text-align: center; }
     .kpi h3 { margin: 0 0 8px 0; font-size: 1rem; color: #7f8c8d; }
     .kpi h2 { margin: 0; font-size: 1.6rem; color: #27ae60; }
-    .chart-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 20px 0; }
+
+    .charts-row { 
+      display: flex; 
+      gap: 20px; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      margin: 20px 0; 
+    }
+    .chart-card { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+      flex: 1; 
+      min-width: 45%; 
+      max-width: 48%; 
+    }
+
     table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     th, td { border: 1px solid #ecf0f1; padding: 12px; text-align: center; }
     th { background: #3498db; color: white; }
@@ -31,14 +49,15 @@
     <div class="kpi"><h3>بهترین لاین</h3><h2 id="bestLine">SDA</h2></div>
   </div>
 
-  <div class="chart-container">
-    <h2>نمودار فروش ماهانه</h2>
-    <canvas id="salesChart" height="130"></canvas>
-  </div>
-
-  <div class="chart-container">
-    <h2>سهم هر لاین</h2>
-    <canvas id="pieChart" height="130"></canvas>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h2>فروش ماهانه</h2>
+      <canvas id="salesChart" height="140"></canvas>
+    </div>
+    <div class="chart-card">
+      <h2>سهم هر لاین</h2>
+      <canvas id="pieChart" height="140"></canvas>
+    </div>
   </div>
 
   <div class="filter">
@@ -55,7 +74,8 @@
   </table>
 
   <script>
-    const USERNAME = "irmosaka";
+    const USERNAME = "irmosaka"; // اسم کاربری شما
+
     function toPersianDate(isoDate) {
       if (!isoDate) return "نامعتبر";
       const [year, month, day] = isoDate.split('-').map(Number);
@@ -112,7 +132,6 @@
         select.appendChild(opt);
       });
 
-      // چارت‌ها
       createMonthlyChart(monthlyData);
       createPieChart(lineRevenue);
     }
@@ -124,14 +143,8 @@
 
       new Chart(ctx, {
         type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } } }
-        }
+        data: { labels, datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }] },
+        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } } } }
       });
     }
 
@@ -142,10 +155,7 @@
 
       new Chart(ctx, {
         type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [{ data: values, backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f1c40f'] }]
-        },
+        data: { labels, datasets: [{ data: values, backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'] }] },
         options: { responsive: true }
       });
     }
@@ -159,7 +169,7 @@
       });
     }
 
-    loadData().catch(e => alert("خطا: " + e.message));
+    loadData();
   </script>
 </body>
 </html>

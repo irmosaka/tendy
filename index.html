@@ -4,11 +4,6 @@
   <meta charset="UTF-8">
   <title>ورود دیتا - تندی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- jQuery + Persian Datepicker -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-  
   <style>
     body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; }
     .container { max-width: 700px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
@@ -25,13 +20,16 @@
     th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
     th { background: #f8f9fa; }
     .error { color: #e74c3c; font-size: 0.9rem; text-align: center; margin: 10px 0; }
+    .hint { font-size: 0.9rem; color: #7f8c8d; margin-top: -5px; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>📝 ورود اطلاعات فروش تندی</h1>
     
-    <input type="text" id="date" placeholder="تاریخ شمسی" readonly>
+    <input type="text" id="date" placeholder="تاریخ شمسی (مثال: 1405/04/22)" style="direction: ltr; text-align: center;">
+    <p class="hint">فرمت: سال/ماه/روز (مثلاً ۱۴۰۵/۰۴/۲۲)</p>
+
     <select id="line">
       <option value="SDA">SDA - لوازم خانگی کوچک</option>
       <option value="Digital">Digital</option>
@@ -58,18 +56,8 @@
   <script>
     let data = [];
 
-    // فعال‌سازی تقویم شمسی
-    $(document).ready(function() {
-      $("#date").persianDatepicker({
-        format: 'YYYY/MM/DD',
-        autoClose: true,
-        initialValue: true,
-        initialValueType: 'persian'
-      });
-    });
-
     function addRow() {
-      const dateInput = document.getElementById('date').value;
+      const dateInput = document.getElementById('date').value.trim();
       const product = document.getElementById('product').value.trim();
       const revenue = document.getElementById('revenue').value;
 
@@ -93,6 +81,7 @@
       renderTable();
 
       // پاک کردن فیلدها
+      document.getElementById('date').value = '';
       document.getElementById('product').value = '';
       document.getElementById('revenue').value = '';
       document.getElementById('units').value = '';

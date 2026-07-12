@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <title>ورود دیتا - تندی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Persian Date Picker -->
+  <!-- jQuery + Persian Datepicker -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
   <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+  
   <style>
     body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; }
     .container { max-width: 700px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
@@ -22,7 +24,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
     th { background: #f8f9fa; }
-    .error { color: #e74c3c; font-size: 0.9rem; text-align: center; }
+    .error { color: #e74c3c; font-size: 0.9rem; text-align: center; margin: 10px 0; }
   </style>
 </head>
 <body>
@@ -32,8 +34,8 @@
     <input type="text" id="date" placeholder="تاریخ شمسی" readonly>
     <select id="line">
       <option value="SDA">SDA - لوازم خانگی کوچک</option>
-      <option value="Digital">محصولات دیجیتال</option>
-      <option value="Cosmetics">محصولات زیبایی و مراقبتی</option>
+      <option value="Digital">Digital</option>
+      <option value="Cosmetics">Cosmetics & Personal Care</option>
     </select>
     <input type="text" id="product" placeholder="نام محصول / خدمت">
     <input type="number" id="revenue" placeholder="مبلغ فروش (تومان)">
@@ -48,7 +50,7 @@
 
     <h2>داده‌های وارد شده</h2>
     <table id="dataTable">
-      <thead><tr><th>تاریخ ورود</th><th>لاین</th><th>محصول</th><th>فروش</th><th>تعداد</th><th>مشاور</th></tr></thead>
+      <thead><tr><th>تاریخ شمسی</th><th>لاین</th><th>محصول</th><th>فروش</th><th>تعداد</th><th>مشاور</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -56,12 +58,13 @@
   <script>
     let data = [];
 
-    // تقویم شمسی
+    // فعال‌سازی تقویم شمسی
     $(document).ready(function() {
       $("#date").persianDatepicker({
         format: 'YYYY/MM/DD',
         autoClose: true,
-        initialValue: true
+        initialValue: true,
+        initialValueType: 'persian'
       });
     });
 
@@ -71,7 +74,7 @@
       const revenue = document.getElementById('revenue').value;
 
       if (!dateInput || !product || !revenue) {
-        document.getElementById('error').textContent = "لطفاً تاریخ، نام محصول، مبلغ فروش و نام خود را وارد کنید!";
+        document.getElementById('error').textContent = "لطفاً تاریخ، نام محصول و مبلغ فروش را وارد کنید!";
         return;
       }
 

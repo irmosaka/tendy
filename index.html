@@ -2,33 +2,61 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ورود دیتا - تندی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; }
-    .container { max-width: 700px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #2c3e50; }
-    input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-size: 1.05rem; font-family: 'Vazirmatn', Tahoma, sans-serif; }
-    button { font-weight: bold; cursor: pointer; }
+    body { 
+      font-family: 'Vazirmatn', Tahoma, sans-serif; 
+      margin: 0; 
+      padding: 20px; 
+      background: #f4f6f9; 
+    }
+    .container { 
+      max-width: 720px; 
+      margin: 20px auto; 
+      background: white; 
+      padding: 30px; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+    }
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+    .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+    input, select, button { 
+      width: 100%; 
+      padding: 14px; 
+      margin: 12px 0; 
+      border-radius: 10px; 
+      border: 1px solid #ddd; 
+      font-size: 1.05rem; 
+      font-family: 'Vazirmatn', Tahoma, sans-serif; 
+      box-sizing: border-box;
+    }
+    button { 
+      font-weight: bold; 
+      cursor: pointer; 
+      margin: 8px 0; 
+    }
     .add-btn { background: #3498db; color: white; }
     .add-btn:hover { background: #2980b9; }
     .download-btn { background: #27ae60; color: white; }
     .download-btn:hover { background: #219653; }
     .clear-btn { background: #e74c3c; color: white; }
     .clear-btn:hover { background: #c0392b; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
     th { background: #f8f9fa; }
-    .error { color: #e74c3c; font-size: 0.9rem; text-align: center; margin: 10px 0; }
-    .hint { font-size: 0.9rem; color: #7f8c8d; margin-top: -5px; }
+    .error { color: #e74c3c; text-align: center; margin: 10px 0; font-size: 0.95rem; }
+    .hint { text-align: center; color: #7f8c8d; font-size: 0.9rem; margin-top: -8px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📝 ورود اطلاعات فروش تندی</h1>
+    <h1>📝 ورود اطلاعات فروش</h1>
+    <p class="subtitle">تندی - لاین‌های SDA، دیجیتال و آرایشی بهداشتی</p>
     
-    <input type="text" id="date" placeholder="تاریخ شمسی (مثال: 1405/04/22)" style="direction: ltr; text-align: center;">
-    <p class="hint">فرمت: سال/ماه/روز (مثلاً ۱۴۰۵/۰۴/۲۲)</p>
+    <input type="text" id="date" placeholder="تاریخ شمسی (مثال: ۱۴۰۵/۰۴/۲۲)" style="text-align: center;">
+    <p class="hint">فرمت: سال/ماه/روز</p>
 
     <select id="line">
       <option value="SDA">SDA - لوازم خانگی کوچک</option>

@@ -4,34 +4,15 @@
   <meta charset="UTF-8">
   <title>ورود دیتا - تندی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Persian Date Picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
   <style>
-    body { 
-      font-family: 'Vazirmatn', Tahoma, sans-serif; 
-      margin: 20px; 
-      background: #f4f6f9; 
-    }
-    .container { 
-      max-width: 700px; 
-      margin: 30px auto; 
-      background: white; 
-      padding: 30px; 
-      border-radius: 16px; 
-      box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
-    }
+    body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; }
+    .container { max-width: 700px; margin: 30px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     h1 { text-align: center; color: #2c3e50; }
-    input, select, button { 
-      width: 100%; 
-      padding: 14px; 
-      margin: 10px 0; 
-      border-radius: 8px; 
-      border: 1px solid #ddd; 
-      font-size: 1.05rem; 
-      font-family: 'Vazirmatn', Tahoma, sans-serif; 
-    }
-    button { 
-      font-weight: bold; 
-      cursor: pointer; 
-    }
+    input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-size: 1.05rem; font-family: 'Vazirmatn', Tahoma, sans-serif; }
+    button { font-weight: bold; cursor: pointer; }
     .add-btn { background: #3498db; color: white; }
     .add-btn:hover { background: #2980b9; }
     .download-btn { background: #27ae60; color: white; }
@@ -41,13 +22,14 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
     th { background: #f8f9fa; }
+    .error { color: #e74c3c; font-size: 0.9rem; text-align: center; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>📝 ورود اطلاعات فروش تندی</h1>
     
-    <input type="date" id="date" placeholder="تاریخ">
+    <input type="text" id="date" placeholder="تاریخ شمسی" readonly>
     <select id="line">
       <option value="SDA">SDA - لوازم خانگی کوچک</option>
       <option value="Digital">Digital</option>
@@ -62,9 +44,11 @@
     <button class="download-btn" onclick="downloadCSV()">⬇️ دانلود فایل CSV</button>
     <button class="clear-btn" onclick="clearData()">🗑️ پاک کردن همه</button>
 
+    <div id="error" class="error"></div>
+
     <h2>داده‌های وارد شده</h2>
     <table id="dataTable">
-      <thead><tr><th>تاریخ</th><th>لاین</th><th>محصول</th><th>فروش</th><th>تعداد</th><th>مشاور</th></tr></thead>
+      <thead><tr><th>تاریخ شمسی</th><th>لاین</th><th>محصول</th><th>فروش</th><th>تعداد</th><th>مشاور</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>
@@ -72,17 +56,39 @@
   <script>
     let data = [];
 
+    // تقویم شمسی
+    $(document).ready(function() {
+      $("#date").persianDatepicker({
+        format: 'YYYY/MM/DD',
+        autoClose: true,
+        initialValue: true
+      });
+    });
+
     function addRow() {
+      const dateInput = document.getElementById('date').value;
+      const product = document.getElementById('product').value.trim();
+      const revenue = document.getElementById('revenue').value;
+
+      if (!dateInput || !product || !revenue) {
+        document.getElementById('error').textContent = "لطفاً تاریخ، نام محصول و مبلغ فروش را وارد کنید!";
+        return;
+      }
+
+      document.getElementById('error').textContent = "";
+
       const row = {
-        date: document.getElementById('date').value || new Date().toISOString().slice(0,10),
+        date: dateInput,
         line: document.getElementById('line').value,
-        product: document.getElementById('product').value || "بدون نام",
-        revenue: document.getElementById('revenue').value || 0,
-        units: document.getElementById('units').value || 0,
-        consultant: document.getElementById('consultant').value || "نامشخص"
+        product: product,
+        revenue: parseInt(revenue) || 0,
+        units: parseInt(document.getElementById('units').value) || 0,
+        consultant: document.getElementById('consultant').value.trim() || "نامشخص"
       };
+
       data.push(row);
       renderTable();
+
       // پاک کردن فیلدها
       document.getElementById('product').value = '';
       document.getElementById('revenue').value = '';
@@ -99,7 +105,7 @@
           <td>${r.date}</td>
           <td>${r.line}</td>
           <td>${r.product}</td>
-          <td>${parseInt(r.revenue).toLocaleString('fa-IR')}</td>
+          <td>${r.revenue.toLocaleString('fa-IR')}</td>
           <td>${r.units}</td>
           <td>${r.consultant}</td>
         `;

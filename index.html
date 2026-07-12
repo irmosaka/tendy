@@ -5,38 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ورود دیتا - تندی</title>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/persian-date-picker@latest/dist/css/persian-date-picker.min.css">
+  <script src="https://unpkg.com/persian-date-picker@latest/dist/js/persian-date-picker.min.js"></script>
   <style>
-    body { 
-      font-family: 'Vazirmatn', Tahoma, sans-serif; 
-      margin: 0; 
-      padding: 20px; 
-      background: #f4f6f9; 
-    }
-    .container { 
-      max-width: 720px; 
-      margin: 20px auto; 
-      background: white; 
-      padding: 30px; 
-      border-radius: 20px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-    }
-    h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
-    .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
-    input, select, button { 
-      width: 100%; 
-      padding: 14px; 
-      margin: 12px 0; 
-      border-radius: 10px; 
-      border: 1px solid #ddd; 
-      font-size: 1.05rem; 
-      font-family: 'Vazirmatn', Tahoma, sans-serif; 
-      box-sizing: border-box;
-    }
-    button { 
-      font-weight: bold; 
-      cursor: pointer; 
-      margin: 8px 0; 
-    }
+    body { font-family: 'Vazirmatn', Tahoma, sans-serif; margin: 20px; background: #f4f6f9; }
+    .container { max-width: 720px; margin: 20px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #2c3e50; }
+    input, select, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 1.05rem; font-family: 'Vazirmatn', Tahoma, sans-serif; }
+    button { font-weight: bold; cursor: pointer; }
     .add-btn { background: #3498db; color: white; }
     .add-btn:hover { background: #2980b9; }
     .download-btn { background: #27ae60; color: white; }
@@ -46,18 +23,14 @@
     table { width: 100%; border-collapse: collapse; margin-top: 25px; }
     th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
     th { background: #f8f9fa; }
-    .error { color: #e74c3c; text-align: center; margin: 10px 0; font-size: 0.95rem; }
-    .hint { text-align: center; color: #7f8c8d; font-size: 0.9rem; margin-top: -8px; }
+    .error { color: #e74c3c; text-align: center; margin: 10px 0; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📝 ورود اطلاعات فروش</h1>
-    <p class="subtitle">تندی - لاین‌های SDA، دیجیتال و آرایشی بهداشتی</p>
+    <h1>📝 ورود اطلاعات فروش تندی</h1>
     
-    <input type="text" id="date" placeholder="تاریخ شمسی (مثال: ۱۴۰۵/۰۴/۲۲)" style="text-align: center;">
-    <p class="hint">فرمت: سال/ماه/روز</p>
-
+    <input type="text" id="date" placeholder="تاریخ شمسی" readonly>
     <select id="line">
       <option value="SDA">SDA - لوازم خانگی کوچک</option>
       <option value="Digital">Digital</option>
@@ -84,13 +57,22 @@
   <script>
     let data = [];
 
+    // فعال‌سازی تقویم شمسی
+    $(document).ready(function() {
+      $('#date').persianDatePicker({
+        format: 'YYYY/MM/DD',
+        autoClose: true,
+        initialValue: true
+      });
+    });
+
     function addRow() {
-      const dateInput = document.getElementById('date').value.trim();
+      const dateInput = document.getElementById('date').value;
       const product = document.getElementById('product').value.trim();
       const revenue = document.getElementById('revenue').value;
 
       if (!dateInput || !product || !revenue) {
-        document.getElementById('error').textContent = "لطفاً تاریخ، نام محصول و مبلغ فروش را وارد کنید!";
+        document.getElementById('error').textContent = "لطفاً همه فیلدها را پر کنید!";
         return;
       }
 
@@ -100,7 +82,7 @@
         date: dateInput,
         line: document.getElementById('line').value,
         product: product,
-        revenue: parseInt(revenue) || 0,
+        revenue: parseInt(revenue),
         units: parseInt(document.getElementById('units').value) || 0,
         consultant: document.getElementById('consultant').value.trim() || "نامشخص"
       };
@@ -108,8 +90,6 @@
       data.push(row);
       renderTable();
 
-      // پاک کردن فیلدها
-      document.getElementById('date').value = '';
       document.getElementById('product').value = '';
       document.getElementById('revenue').value = '';
       document.getElementById('units').value = '';
@@ -121,29 +101,19 @@
       tbody.innerHTML = '';
       data.forEach(r => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${r.date}</td>
-          <td>${r.line}</td>
-          <td>${r.product}</td>
-          <td>${r.revenue.toLocaleString('fa-IR')}</td>
-          <td>${r.units}</td>
-          <td>${r.consultant}</td>
-        `;
+        tr.innerHTML = `<td>${r.date}</td><td>${r.line}</td><td>${r.product}</td><td>${r.revenue.toLocaleString('fa-IR')}</td><td>${r.units}</td><td>${r.consultant}</td>`;
         tbody.appendChild(tr);
       });
     }
 
     function downloadCSV() {
       if (data.length === 0) {
-        alert("ابتدا حداقل یک رکورد اضافه کنید!");
+        alert("ابتدا رکورد اضافه کنید!");
         return;
       }
       let csv = "date,line,product,revenue,units,consultant\n";
-      data.forEach(r => {
-        csv += `${r.date},${r.line},${r.product},${r.revenue},${r.units},${r.consultant}\n`;
-      });
-      
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      data.forEach(r => csv += `${r.date},${r.line},${r.product},${r.revenue},${r.units},${r.consultant}\n`);
+      const blob = new Blob([csv], { type: 'text/csv' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `sales_tendy_${new Date().toISOString().slice(0,10)}.csv`;
@@ -151,7 +121,7 @@
     }
 
     function clearData() {
-      if (confirm("آیا همه داده‌ها پاک شود؟")) {
+      if (confirm("همه داده‌ها پاک شود؟")) {
         data = [];
         renderTable();
       }

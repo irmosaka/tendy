@@ -123,21 +123,38 @@
       createPieChart(lineRevenue);
     }
 
-    function createMonthlyChart(data) {
+        function createMonthlyChart(data) {
       const ctx = document.getElementById('salesChart').getContext('2d');
       const labels = Object.keys(data).sort();
       const values = labels.map(m => data[m]);
 
+      // تبدیل ماه‌ها به شمسی
+      const persianMonthNames = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+
+      const persianLabels = labels.map(date => {
+        const [year, month] = date.split('-');
+        const persianYear = parseInt(year) - 621;
+        const monthName = persianMonthNames[parseInt(month) - 1];
+        return `${monthName} ${persianYear}`;
+      });
+
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: labels,
-          datasets: [{ label: 'فروش ماهانه', data: values, backgroundColor: '#3498db' }]
+          labels: persianLabels,
+          datasets: [{ 
+            label: 'فروش ماهانه', 
+            data: values, 
+            backgroundColor: '#3498db' 
+          }]
         },
         options: {
           responsive: true,
           scales: {
-            y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fa-IR') } }
+            y: { 
+              beginAtZero: true, 
+              ticks: { callback: v => v.toLocaleString('fa-IR') } 
+            }
           }
         }
       });
